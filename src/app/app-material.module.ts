@@ -6,6 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTableExporterModule } from 'mat-table-exporter';
 
 const MATERIAL_MODULES = [
   MatInputModule,
@@ -14,6 +16,8 @@ const MATERIAL_MODULES = [
   MatTableModule,
   MatFormFieldModule,
   MatCardModule,
+  MatToolbarModule,
+  MatTableExporterModule,
 ];
 
 @NgModule({

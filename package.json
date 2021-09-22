@@ -27,10 +27,12 @@
     "@angular/platform-browser-dynamic": "^12.2.5",
     "@angular/router": "^12.2.5",
     "eslint": "^7.32.0",
+    "mat-table-exporter": "^10.2.3",
     "moment": "^2.29.1",
     "prettier": "^2.4.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
+    "xlsx": "^0.17.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

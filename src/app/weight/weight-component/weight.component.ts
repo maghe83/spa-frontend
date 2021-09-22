@@ -1,11 +1,19 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import * as moment from 'moment';
+import { KistlerRecord } from 'src/app/model/kistler/KistlerRecord';
+import { KistlerService } from 'src/app/service/kistler.service';
+import * as XLSX from 'xlsx';
 import { Outcome } from '../outcome';
 import { Weight } from '../weight';
-
 const ELEMENT_DATA: Weight[] = [
   {
     timestamp: 1631179193202,
@@ -50,47 +58,61 @@ const ELEMENT_DATA: Weight[] = [
   templateUrl: './weight.component.html',
   styleUrls: ['./weight.component.scss'],
 })
-export class WeightComponent implements AfterViewInit {
+export class WeightComponent implements OnInit, AfterViewInit {
   columnHeaders = [
     {
-      columnDef: 'timestamp',
+      columnDef: 'grossWeightInKg',
+      header: 'Kg',
+      cell: (element: KistlerRecord) => element.grossWeightInKg,
+    },
+    {
+      columnDef: 'measurementDateTimeInMills',
       header: 'Data',
-      cell: (element: Weight) => moment(element.timestamp),
+      cell: (element: KistlerRecord) =>
+        moment(element.measurementDateTimeInMills),
     },
     {
-      columnDef: 'outcome',
-      header: 'Esito',
-      cell: (element: Weight) => element.outcome,
+      columnDef: 'velocityInKmH',
+      header: 'Km/h',
+      cell: (element: KistlerRecord) => element.velocityInKmH,
     },
     {
-      columnDef: 'plate',
-      header: 'Targa',
-      cell: (element: Weight) => element.plate,
+      columnDef: 'direction',
+      header: 'Direzione',
+      cell: (element: KistlerRecord) => element.direction,
     },
     {
-      columnDef: 'weight',
-      header: 'Peso',
-      cell: (element: Weight) => element.weight,
+      columnDef: 'vehicleLengthInM',
+      header: 'Lunghezza Veicolo',
+      cell: (element: KistlerRecord) => element.vehicleLengthInM,
+    },
+    {
+      columnDef: 'axlesCount',
+      header: 'Numero Assi',
+      cell: (element: KistlerRecord) => element.axlesCount,
     },
   ];
 
   displayedColumns: string[] = [
-    'timestamp111',
-    'timestamp222',
-    'pippo',
-    'timestamp',
-    'outcome',
-    'plate',
-    'weight',
+    'grossWeightInKg',
+    'measurementDateTimeInMills',
+    'velocityInKmH',
+    'direction',
+    'vehicleLengthInM',
+    'axlesCount',
   ];
-  dataSource: MatTableDataSource<Weight>;
+  dataSource: MatTableDataSource<KistlerRecord>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('pese') pese!: ElementRef;
 
-  constructor() {
-    this.dataSource = new MatTableDataSource(ELEMENT_DATA);
+  constructor(kistlerservice: KistlerService) {
+    this.dataSource = new MatTableDataSource(
+      kistlerservice.getKistlerDataSource()
+    );
   }
+  ngOnInit(): void {}
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
@@ -104,5 +126,12 @@ export class WeightComponent implements AfterViewInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  exportCsv() {
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.dataSource.data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, 'SheetJS.xlsx');
   }
 }
