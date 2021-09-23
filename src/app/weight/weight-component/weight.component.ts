@@ -9,49 +9,23 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import * as moment from 'moment';
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexTitleSubtitle,
+  ApexXAxis,
+  ChartComponent,
+} from 'ng-apexcharts';
 import { KistlerRecord } from 'src/app/model/kistler/KistlerRecord';
 import { KistlerService } from 'src/app/service/kistler.service';
 import * as XLSX from 'xlsx';
-import { Outcome } from '../outcome';
-import { Weight } from '../weight';
-const ELEMENT_DATA: Weight[] = [
-  {
-    timestamp: 1631179193202,
-    outcome: Outcome.ok,
-    plate: 'AB123CD',
-    weight: 55.7,
-  },
-  {
-    timestamp: 1631179225549,
-    outcome: Outcome.ok,
-    plate: 'EF456GH',
-    weight: 23.1,
-  },
-  {
-    timestamp: 1631179233661,
-    outcome: Outcome.ko,
-    plate: 'IL789MN',
-    weight: 12.9,
-  },
-  {
-    timestamp: 1631181401985,
-    outcome: Outcome.ok,
-    plate: 'KL453NM',
-    weight: 44.0,
-  },
-  {
-    timestamp: 1631181428339,
-    outcome: Outcome.ko,
-    plate: 'VB028NM',
-    weight: 34.9,
-  },
-  {
-    timestamp: 1631181548452,
-    outcome: Outcome.ok,
-    plate: 'XZ510FK',
-    weight: 6.1,
-  },
-];
+
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  title: ApexTitleSubtitle;
+};
 
 @Component({
   selector: 'app-weight',
@@ -101,23 +75,50 @@ export class WeightComponent implements OnInit, AfterViewInit {
     'vehicleLengthInM',
     'axlesCount',
   ];
-  dataSource: MatTableDataSource<KistlerRecord>;
+  dataSource!: MatTableDataSource<KistlerRecord>;
+  chartData = [];
+  chartType = 'bar';
+  public chartOptions!: Partial<ChartOptions>;
+  public val1: number = 0;
+  public val2: number = 0;
+  public perc: number = 0;
+  public largest: KistlerRecord[] = [];
+  @ViewChild('chart') chart!: ChartComponent;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('pese') pese!: ElementRef;
 
-  constructor(kistlerservice: KistlerService) {
-    this.dataSource = new MatTableDataSource(
-      kistlerservice.getKistlerDataSource()
+  constructor(private kistlerservice: KistlerService) {}
+  ngOnInit(): void {
+    this.kistlerservice.getKistlerDataSource().subscribe(
+      (response) => {
+        console.log(response);
+        this.dataSource = new MatTableDataSource(response);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.val1 = response.filter(
+          (record) => record.grossWeightInKg > 7500
+        ).length;
+        this.val2 = response.filter(
+          (record) => record.grossWeightInKg > 44000
+        ).length;
+        this.perc =
+          response.length == 0 ? 0 : (100 * this.val2) / response.length;
+        response.sort((kr1, kr2) =>
+          kr1.grossWeightInKg < kr2.grossWeightInKg
+            ? 1
+            : kr1.grossWeightInKg > kr2.grossWeightInKg
+            ? -1
+            : 0
+        );
+        this.largest = response.slice(0, 3);
+      },
+      (error) => console.log(error)
     );
   }
-  ngOnInit(): void {}
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  ngAfterViewInit() {}
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -133,5 +134,33 @@ export class WeightComponent implements OnInit, AfterViewInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
     XLSX.writeFile(wb, 'SheetJS.xlsx');
+  }
+
+  loadChart() {
+    let dataArray: number[] = [];
+    let dataLabel: number[] = [];
+    this.dataSource.data.map((data) => {
+      dataArray.push(data.velocityInKmH);
+      dataLabel.push(data.measurementDateTimeInMills);
+    });
+    this.chartOptions = {
+      series: [
+        {
+          name: 'speed',
+          data: dataArray,
+        },
+      ],
+      chart: {
+        height: 500,
+        type: 'bar',
+      },
+      title: {
+        text: `speed chart`,
+      },
+      xaxis: {
+        type: 'datetime',
+        categories: dataLabel,
+      },
+    };
   }
 }

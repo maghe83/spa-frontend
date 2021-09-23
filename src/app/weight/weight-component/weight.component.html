@@ -4,6 +4,23 @@
   </mat-card-header>
 
   <mat-card-content>
+    <div class="container">
+      <div class="row">
+        <div class="col-6 col-sm-3">
+          <label>Weights</label>
+          <li>7.5 Ton : {{ val1 }}</li>
+          <li>44 Ton : {{ val2 }}</li>
+          <li>44 Ton % : {{ perc }}</li>
+        </div>
+        <div class="col-6 col-sm-3">
+          <label>Top 3 Weights</label>
+          <ng-container *ngFor="let pesata of largest">
+            <li>{{ pesata.grossWeightInKg }}</li>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
     <mat-form-field appearance="standard">
       <mat-label>Filtro</mat-label>
       <input
@@ -16,6 +33,7 @@
 
     <div class="mat-elevation-z8" #pese>
       <table
+        class="table"
         matTableExporter
         mat-table
         #tablepese
@@ -63,23 +81,34 @@
         class="paginator"
         [pageSizeOptions]="[5, 10, 20]"
       ></mat-paginator>
-
-      <mat-toolbar>
-        <mat-toolbar-row>
-          <button class="btn btn-primary" (click)="exportCsv()">
-            <i class="material-icons" title="esporta in xlsx">save_alt </i>
-          </button>
-          <span></span>
-          <button mat-button (click)="exporter.exportTable('xlsx')">
-            export to xlsx
-          </button>
-        </mat-toolbar-row>
-      </mat-toolbar>
-
-      <!-- <mat-paginator
-        [pageSizeOptions]="[5, 25, 50, 100]"
-        aria-label="Select page of users"
-      ></mat-paginator>-->
     </div>
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <button class="btn btn-default" (click)="exportCsv()">
+          <span
+            class="glyphicon glyphicon-save-file lg"
+            title="export to xlsx"
+            aria-hidden="true"
+          ></span>
+        </button>
+        <span></span>
+        <button
+          mat-button
+          class="btn btn-default"
+          (click)="exporter.exportTable('xlsx')"
+        >
+          export to xlsx
+        </button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <!-- <div style="text-align: center">
+      <apx-chart
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [title]="chartOptions.title!"
+      ></apx-chart>
+    </div>-->
   </mat-card-content>
 </mat-card>
