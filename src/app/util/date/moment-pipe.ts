@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 @Pipe({ name: 'momentPipe' })
 export class MomentPipe implements PipeTransform {
-  defaultDateFormat = 'yyyy/MM/dd, hh:mm:ss';
+  defaultDateFormat = 'DD/MM/yyyy, hh:mm:ss';
 
   transform(
     value: Date | moment.Moment,

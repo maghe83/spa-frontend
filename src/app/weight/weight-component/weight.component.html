@@ -8,9 +8,9 @@
       <div class="row">
         <div class="col-6 col-sm-3">
           <label>Weights</label>
-          <li>7.5 Ton : {{ val1 }}</li>
-          <li>44 Ton : {{ val2 }}</li>
-          <li>44 Ton % : {{ perc }}</li>
+          <li>&#8805; 7.5 Ton : {{ val1 }}</li>
+          <li>&#8805; 44 Ton : {{ val2 }}</li>
+          <li>% &#8805; 44 Ton : {{ perc }}</li>
         </div>
         <div class="col-6 col-sm-3">
           <label>Top 3 Weights</label>
@@ -41,20 +41,6 @@
         matSort
         #exporter="matTableExporter"
       >
-        <!-- <ng-container matColumnDef="timestamp111">
-          <th mat-header-cell *matHeaderCellDef>Nonno</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.timestamp }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="timestamp222">
-          <th mat-header-cell *matHeaderCellDef>Pluto</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.timestamp | momentPipe }}
-          </td>
-        </ng-container>
-      -->
         <ng-container
           *ngFor="let column of columnHeaders"
           [matColumnDef]="column.columnDef"
@@ -79,7 +65,7 @@
 
       <mat-paginator
         class="paginator"
-        [pageSizeOptions]="[5, 10, 20]"
+        [pageSizeOptions]="[10, 20, 50]"
       ></mat-paginator>
     </div>
     <mat-toolbar>

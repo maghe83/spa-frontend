@@ -18,6 +18,7 @@ import {
 } from 'ng-apexcharts';
 import { KistlerRecord } from 'src/app/model/kistler/KistlerRecord';
 import { KistlerService } from 'src/app/service/kistler.service';
+import { MomentPipe } from 'src/app/util/date/moment-pipe';
 import * as XLSX from 'xlsx';
 
 export type ChartOptions = {
@@ -43,7 +44,7 @@ export class WeightComponent implements OnInit, AfterViewInit {
       columnDef: 'measurementDateTimeInMills',
       header: 'Data',
       cell: (element: KistlerRecord) =>
-        moment(element.measurementDateTimeInMills),
+        this.momentPipe.transform(moment(element.measurementDateTimeInMills)),
     },
     {
       columnDef: 'velocityInKmH',
@@ -66,6 +67,7 @@ export class WeightComponent implements OnInit, AfterViewInit {
       cell: (element: KistlerRecord) => element.axlesCount,
     },
   ];
+  momentPipe: MomentPipe;
 
   displayedColumns: string[] = [
     'grossWeightInKg',
@@ -83,13 +85,17 @@ export class WeightComponent implements OnInit, AfterViewInit {
   public val2: number = 0;
   public perc: number = 0;
   public largest: KistlerRecord[] = [];
+
   @ViewChild('chart') chart!: ChartComponent;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('pese') pese!: ElementRef;
 
-  constructor(private kistlerservice: KistlerService) {}
+  constructor(private kistlerservice: KistlerService) {
+    this.momentPipe = new MomentPipe();
+  }
+
   ngOnInit(): void {
     this.kistlerservice.getKistlerDataSource().subscribe(
       (response) => {
@@ -98,10 +104,10 @@ export class WeightComponent implements OnInit, AfterViewInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.val1 = response.filter(
-          (record) => record.grossWeightInKg > 7500
+          (record) => record.grossWeightInKg >= 7500
         ).length;
         this.val2 = response.filter(
-          (record) => record.grossWeightInKg > 44000
+          (record) => record.grossWeightInKg >= 44000
         ).length;
         this.perc =
           response.length == 0 ? 0 : (100 * this.val2) / response.length;
